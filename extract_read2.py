@@ -12,8 +12,8 @@ from optparse import OptionParser
 import sys, gzip
 #option parser
 parser = OptionParser(usage="""Run annotation.py \n Usage: %prog [options]""")
-parser.add_option("-p","--prefix",action = 'store',type = 'string',dest = 'prefix',help = "")
-parser.add_option("-t","--threadN",action = 'store',type = 'int',dest = 'threadN',help = "")
+parser.add_option('-p','--prefix',action = 'store',type = 'string',dest = 'prefix',help = "")
+parser.add_option('-t','--threadN',action = 'store',type = 'int',dest = 'threadN',help = "")
 (opt, args) = parser.parse_args()
 if opt.prefix == None or opt.threadN == None:
     print('Basic usage')
@@ -42,9 +42,9 @@ def get_softclip_baseN(read):
 def filter_read(batchIDX):
     readIDX = -1
 
-    fin = pysam.AlignmentFile(prefix + '.bam', "r")
-    fout_pass = pysam.AlignmentFile(f'{tmpDir}/{prefix}_{batchIDX:05d}.pass.bam', "wb", template=fin)
-    fout_fail = pysam.AlignmentFile(f'{tmpDir}/{prefix}_{batchIDX:05d}.fail.bam', "wb", template=fin)
+    fin = pysam.AlignmentFile(prefix + '.bam', 'rb')
+    fout_pass = pysam.AlignmentFile(f'{tmpDir}/{prefix}_{batchIDX:05d}.pass.bam', 'wb', template=fin)
+    fout_fail = pysam.AlignmentFile(f'{tmpDir}/{prefix}_{batchIDX:05d}.fail.bam', 'wb', template=fin)
 
 
     totalN = 0
@@ -69,7 +69,7 @@ def filter_read(batchIDX):
             continue
 
         #mismatch
-        mismatchN = read.get_tag("NM")
+        mismatchN = read.get_tag('NM')
         mismatch_rate = mismatchN / read.query_length
         if mismatch_rate > 0.01:
             fout_fail.write(read)
@@ -105,11 +105,11 @@ log(f'filter result - totalN:{totalN}, passN:{passN}, rate:{passN / totalN * 100
 
 #pass
 log(f'write pass file start: {prefix}.pass.bam')
-fin = pysam.AlignmentFile(prefix + '.bam', "r")
-fout = pysam.AlignmentFile(f'/{prefix}.pass.bam', "wb", template=fin)
+fin = pysam.AlignmentFile(prefix + '.bam', 'rb')
+fout = pysam.AlignmentFile(f'{prefix}.pass.bam', 'wb', template=fin)
 fin.close()
 for batchIDX in range(batchN):
-    fin = gzip.open(f'{tmpDir}/{prefix}_{batchIDX:05d}.pass.bam', 'rb')
+    fin = pysam.AlignmentFile(f'{tmpDir}/{prefix}_{batchIDX:05d}.pass.bam', 'rb')
     for read in fin:
         fout.write(read)
     fin.close()
@@ -118,11 +118,11 @@ log(f'write pass file done:  {prefix}.pass.bam')
 
 #fail
 log(f'write pass file start: {prefix}.fail.bam')
-fin = pysam.AlignmentFile(prefix + '.bam', "r")
-fout = pysam.AlignmentFile(f'/{prefix}.fail.bam', "wb", template=fin)
+fin = pysam.AlignmentFile(prefix + '.bam', 'rb')
+fout = pysam.AlignmentFile(f'{prefix}.fail.bam', 'wb', template=fin)
 fin.close()
 for batchIDX in range(batchN):
-    fin = gzip.open(f'{tmpDir}/{prefix}_{batchIDX:05d}.fail.bam', 'rb')
+    fin = pysam.AlignmentFile(f'{tmpDir}/{prefix}_{batchIDX:05d}.fail.bam', 'rb')
     for read in fin:
         fout.write(read)
     fin.close()
